@@ -20,6 +20,7 @@ private val K_LABEL = stringPreferencesKey("label")
 private val K_DAYS = intPreferencesKey("days_mask")
 private val K_TIMES = stringPreferencesKey("times")
 private val K_ENABLED = booleanPreferencesKey("enabled")
+private val K_DYNAMIC = booleanPreferencesKey("dynamic_color")
 
 class SettingsRepository(context: Context) {
     private val store = context.applicationContext.settingsStore
@@ -38,6 +39,7 @@ class SettingsRepository(context: Context) {
             prefs[K_DAYS] = s.daysMask
             prefs[K_TIMES] = s.times.distinct().sorted().joinToString(",")
             prefs[K_ENABLED] = s.enabled
+            prefs[K_DYNAMIC] = s.dynamicColor
         }
     }
 
@@ -54,7 +56,8 @@ class SettingsRepository(context: Context) {
                 ?.mapNotNull { it.trim().toIntOrNull() }
                 ?.sorted()
                 ?: d.times,
-            enabled = this[K_ENABLED] ?: d.enabled
+            enabled = this[K_ENABLED] ?: d.enabled,
+            dynamicColor = this[K_DYNAMIC] ?: d.dynamicColor
         )
     }
 }

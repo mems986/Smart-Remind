@@ -6,8 +6,10 @@
     <string name="default_label">pep</string>
     <string name="action_open">Open</string>
     <string name="action_close">Close</string>
+    <string name="notif_body_app">Time to open %1$s</string>
+    <string name="notif_body_generic">Reminder</string>
 
-    <string name="title_settings">Settings</string>
+    <string name="title_settings">Smart Remind</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="granted">Granted</string>
@@ -17,11 +19,19 @@
     <string name="perm_notifications">Notifications</string>
     <string name="perm_exact_alarms">Exact alarms</string>
     <string name="perm_exact_hint">Without this permission reminders may be delayed.</string>
+    <string name="perm_live_updates">Live updates</string>
+    <string name="perm_live_hint">Android 16+: allow the live widget in the status bar next to the clock.</string>
+    <string name="open_settings">Settings</string>
 
-    <string name="section_notification">Notification</string>
+    <string name="section_notification">Live widget</string>
     <string name="label_text">Label</string>
-    <string name="target_package">Target package name</string>
-    <string name="target_package_hint">e.g. com.instagram.android</string>
+    <string name="target_app">App to open</string>
+    <string name="target_app_none">Not selected</string>
+    <string name="choose_app">Choose</string>
+    <string name="change_app">Change</string>
+    <string name="clear_app">Clear selection</string>
+    <string name="pick_app_title">Choose an app</string>
+    <string name="search_apps">Search apps</string>
     <string name="target_not_found">App not found on this device</string>
     <string name="timer_duration">Countdown duration: %1$d min</string>
 
@@ -41,8 +51,11 @@
     <string name="next_alarm">Next reminder: %1$s</string>
     <string name="no_next_alarm">No reminders scheduled</string>
 
-    <string name="section_language">Language</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="language_title">Language</string>
     <string name="lang_auto">Auto (system)</string>
+    <string name="dynamic_colors">Dynamic colors</string>
+    <string name="dynamic_colors_hint">Use wallpaper colors (Android 12+). Off: vivid built-in palette.</string>
 
     <string name="section_privacy">Privacy</string>
     <string name="hide_icon">Hide launcher icon</string>
@@ -52,7 +65,7 @@
     <string name="icon_restored">Icon restored</string>
 
     <string name="section_test">Testing</string>
-    <string name="test_now">Send test notification</string>
+    <string name="test_now">Show live widget now</string>
     <string name="test_in_10s">Test alarm in 10 seconds</string>
     <string name="test_scheduled">Test alarm set for 10 seconds from now</string>
 

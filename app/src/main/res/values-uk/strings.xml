@@ -6,8 +6,10 @@
     <string name="default_label">pep</string>
     <string name="action_open">Відкрити</string>
     <string name="action_close">Закрити</string>
+    <string name="notif_body_app">Час відкрити %1$s</string>
+    <string name="notif_body_generic">Нагадування</string>
 
-    <string name="title_settings">Налаштування</string>
+    <string name="title_settings">Smart Remind</string>
     <string name="ok">OK</string>
     <string name="cancel">Скасувати</string>
     <string name="granted">Надано</string>
@@ -17,11 +19,19 @@
     <string name="perm_notifications">Сповіщення</string>
     <string name="perm_exact_alarms">Точні будильники</string>
     <string name="perm_exact_hint">Без цього дозволу нагадування можуть спрацьовувати із затримкою.</string>
+    <string name="perm_live_updates">Живі сповіщення</string>
+    <string name="perm_live_hint">Android 16+: дозвольте віджет у статус-барі поруч із годинником.</string>
+    <string name="open_settings">Налаштування</string>
 
-    <string name="section_notification">Сповіщення</string>
+    <string name="section_notification">Live-віджет</string>
     <string name="label_text">Напис</string>
-    <string name="target_package">Пакетне ім\'я цільового застосунку</string>
-    <string name="target_package_hint">напр. com.instagram.android</string>
+    <string name="target_app">Застосунок для відкриття</string>
+    <string name="target_app_none">Не обрано</string>
+    <string name="choose_app">Обрати</string>
+    <string name="change_app">Змінити</string>
+    <string name="clear_app">Скинути вибір</string>
+    <string name="pick_app_title">Оберіть застосунок</string>
+    <string name="search_apps">Пошук застосунків</string>
     <string name="target_not_found">Застосунок не знайдено на цьому пристрої</string>
     <string name="timer_duration">Тривалість таймера: %1$d хв</string>
 
@@ -41,8 +51,11 @@
     <string name="next_alarm">Наступне нагадування: %1$s</string>
     <string name="no_next_alarm">Нагадувань не заплановано</string>
 
-    <string name="section_language">Мова</string>
+    <string name="section_appearance">Вигляд</string>
+    <string name="language_title">Мова</string>
     <string name="lang_auto">Авто (системна)</string>
+    <string name="dynamic_colors">Динамічні кольори</string>
+    <string name="dynamic_colors_hint">Кольори з шпалер (Android 12+). Вимкнено: яскрава вбудована палітра.</string>
 
     <string name="section_privacy">Приватність</string>
     <string name="hide_icon">Приховати іконку з лаунчера</string>
@@ -52,7 +65,7 @@
     <string name="icon_restored">Іконку відновлено</string>
 
     <string name="section_test">Тестування</string>
-    <string name="test_now">Надіслати тестове сповіщення</string>
+    <string name="test_now">Показати віджет зараз</string>
     <string name="test_in_10s">Тестовий будильник через 10 секунд</string>
     <string name="test_scheduled">Тестовий будильник спрацює через 10 секунд</string>
 </resources>

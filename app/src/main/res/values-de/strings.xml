@@ -6,8 +6,10 @@
     <string name="default_label">pep</string>
     <string name="action_open">Öffnen</string>
     <string name="action_close">Schließen</string>
+    <string name="notif_body_app">Zeit, %1$s zu öffnen</string>
+    <string name="notif_body_generic">Erinnerung</string>
 
-    <string name="title_settings">Einstellungen</string>
+    <string name="title_settings">Smart Remind</string>
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
     <string name="granted">Erteilt</string>
@@ -17,11 +19,19 @@
     <string name="perm_notifications">Benachrichtigungen</string>
     <string name="perm_exact_alarms">Exakte Alarme</string>
     <string name="perm_exact_hint">Ohne diese Berechtigung können Erinnerungen verspätet auslösen.</string>
+    <string name="perm_live_updates">Live-Updates</string>
+    <string name="perm_live_hint">Android 16+: Live-Widget in der Statusleiste neben der Uhr erlauben.</string>
+    <string name="open_settings">Einstellungen</string>
 
-    <string name="section_notification">Benachrichtigung</string>
+    <string name="section_notification">Live-Widget</string>
     <string name="label_text">Beschriftung</string>
-    <string name="target_package">Paketname der Ziel-App</string>
-    <string name="target_package_hint">z. B. com.instagram.android</string>
+    <string name="target_app">App zum Öffnen</string>
+    <string name="target_app_none">Nicht ausgewählt</string>
+    <string name="choose_app">Wählen</string>
+    <string name="change_app">Ändern</string>
+    <string name="clear_app">Auswahl zurücksetzen</string>
+    <string name="pick_app_title">App auswählen</string>
+    <string name="search_apps">Apps suchen</string>
     <string name="target_not_found">App auf diesem Gerät nicht gefunden</string>
     <string name="timer_duration">Countdown-Dauer: %1$d Min.</string>
 
@@ -41,8 +51,11 @@
     <string name="next_alarm">Nächste Erinnerung: %1$s</string>
     <string name="no_next_alarm">Keine Erinnerungen geplant</string>
 
-    <string name="section_language">Sprache</string>
+    <string name="section_appearance">Darstellung</string>
+    <string name="language_title">Sprache</string>
     <string name="lang_auto">Automatisch (System)</string>
+    <string name="dynamic_colors">Dynamische Farben</string>
+    <string name="dynamic_colors_hint">Farben vom Hintergrundbild (Android 12+). Aus: kräftige eigene Palette.</string>
 
     <string name="section_privacy">Datenschutz</string>
     <string name="hide_icon">Launcher-Symbol ausblenden</string>
@@ -52,7 +65,7 @@
     <string name="icon_restored">Symbol wiederhergestellt</string>
 
     <string name="section_test">Test</string>
-    <string name="test_now">Test-Benachrichtigung senden</string>
+    <string name="test_now">Live-Widget jetzt anzeigen</string>
     <string name="test_in_10s">Test-Alarm in 10 Sekunden</string>
     <string name="test_scheduled">Test-Alarm in 10 Sekunden gesetzt</string>
 </resources>

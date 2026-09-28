@@ -33,6 +33,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setLabel(value: String) = update { it.copy(label = value) }
     fun setTargetPackage(value: String) = update { it.copy(targetPackage = value) }
     fun setTimerMinutes(value: Int) = update { it.copy(timerMinutes = value) }
+    fun setDynamicColor(value: Boolean) = update { it.copy(dynamicColor = value) }
 
     fun setEnabled(value: Boolean) = update(reschedule = true) { it.copy(enabled = value) }
     fun toggleDay(index: Int) = update(reschedule = true) { it.copy(daysMask = it.daysMask xor (1 shl index)) }

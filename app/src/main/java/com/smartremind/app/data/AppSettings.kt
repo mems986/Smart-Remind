@@ -13,7 +13,8 @@ data class AppSettings(
     val label: String = "pep",
     val daysMask: Int = 0b0011111,
     val times: List<Int> = listOf(9 * 60, 18 * 60),
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
+    val dynamicColor: Boolean = true
 ) {
     fun hasDay(dayIndex: Int): Boolean = (daysMask shr dayIndex) and 1 == 1
 }

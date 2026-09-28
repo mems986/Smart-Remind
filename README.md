@@ -1,26 +1,24 @@
-# Smart Remind & Stealth Notifier
+# Smart Remind & Stealth Notifier — v2.0
 
-Kotlin + Jetpack Compose (Material 3). minSdk 26, targetSdk 35.
+Kotlin + Jetpack Compose, Material 3 Expressive. minSdk 26, compileSdk/targetSdk 36.
+Toolchain: AGP 8.10.1, Gradle 8.13, Kotlin 2.1.21, JDK 17.
 
-## Запуск
-1. Android Studio Ladybug (2024.2) або новіша, JDK 17.
-2. File → Open → папка проєкту, дочекатися Gradle Sync.
-3. Run на пристрої/емуляторі (Android 8.0+).
+## Що нового у v2.0
+- Live-віджет: на Android 16+ сповіщення стає Live Update (чіп у статус-барі поруч із годинником,
+  шкала прогресу в шторці, зворотний відлік). На Android 8–15 — звичайне heads-up зі шкалою прогресу.
+- Шкалу щосекунди рухає короткоживучий foreground-сервіс (CountdownService); тривалість — у налаштуваннях.
+- Кнопка «Відкрити» відкриває застосунок, обраний у списку встановлених програм (пошук + іконки).
+- Дизайн: Material 3 Expressive, кольорові картки, динамічні кольори або яскрава власна палітра.
 
-## План тестування
-1. Надати дозволи (сповіщення, точні будильники) у верхній картці.
-2. «Send test notification» — має з'явитися heads-up з написом, таймером 2:00 і кнопками Open/Close.
-3. Вказати package (напр. com.android.chrome) → Open відкриває цей застосунок; Close ховає сповіщення.
-4. «Test alarm in 10 seconds», заблокувати екран — перевірка AlarmManager у Doze.
-5. Додати слот на +2 хв від поточного часу і відповідний день тижня — перевірка розкладу; перезавантажити пристрій — слот має відновитися.
-6. Змінити мову (Авто/uk/en/de) — UI і текст кнопок сповіщення змінюються.
-7. Hide launcher icon → іконка зникає. Повернути: набрати *#*#7373#*#* у «Телефоні»
-   або через ADB: `adb shell am start -n com.smartremind.app/.MainActivity`.
+## Збірка
+GitHub Actions: Actions → Build APK → Run workflow → Artifacts → app-debug.
+Локально: `./gradlew assembleDebug` → app/build/outputs/apk/debug/app-debug.apk
 
-## Структура
-- data/ — AppSettings, SettingsRepository (Jetpack DataStore)
-- scheduler/ — AlarmScheduler (setExactAndAllowWhileIdle), RescheduleWorker (WorkManager, страховка кожні 6 год)
-- notification/ — NotificationHelper (RemoteViews, Chronometer-зворотний відлік, setTimeoutAfter)
-- receiver/ — Alarm, Close, Boot (+час/пояс/оновлення), SecretCode
-- util/ — StealthManager (activity-alias), LocaleHelper
-- ui/ — Compose-екран налаштувань, ViewModel, тема Material You
+## Перший запуск
+1. Дозволити сповіщення; на Android 12+ — точні будильники; на Android 16+ — «Живі сповіщення».
+2. Обрати застосунок для кнопки «Відкрити».
+3. «Показати віджет зараз» — перевірка Live-віджета.
+4. «Тестовий будильник через 10 секунд» + заблокувати екран — перевірка AlarmManager.
+
+## Повернення прихованої іконки
+Набрати *#*#7373#*#* у «Телефоні» або `adb shell am start -n com.smartremind.app/.MainActivity`.

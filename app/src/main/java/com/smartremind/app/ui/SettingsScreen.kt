@@ -9,6 +9,8 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,23 +21,36 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -47,7 +62,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,22 +73,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.smartremind.app.R
 import com.smartremind.app.data.AppSettings
 import com.smartremind.app.data.LANG_AUTO
-import com.smartremind.app.notification.NotificationHelper
 import com.smartremind.app.scheduler.AlarmScheduler
+import com.smartremind.app.service.CountdownService
+import com.smartremind.app.util.AppUtils
 import com.smartremind.app.util.StealthManager
 import java.text.DateFormat
 import java.util.Date
@@ -82,11 +101,24 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(vm: SettingsViewModel = viewModel()) {
+fun SettingsScreen(vm: SettingsViewModel) {
     val settings by vm.settings.collectAsStateWithLifecycle()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val cs = MaterialTheme.colorScheme
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.title_settings)) }) }
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = cs.background,
+        topBar = {
+            LargeTopAppBar(
+                title = { Text(stringResource(R.string.title_settings), fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = cs.background,
+                    scrolledContainerColor = cs.surfaceContainer
+                ),
+                scrollBehavior = scrollBehavior
+            )
+        }
     ) { padding ->
         val current = settings
         if (current == null) {
@@ -99,25 +131,79 @@ fun SettingsScreen(vm: SettingsViewModel = viewModel()) {
                     .fillMaxSize()
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                HeroCard(current)
                 PermissionsCard()
                 NotificationCard(current, vm)
                 ScheduleCard(current, vm)
-                LanguageCard(current, vm)
+                AppearanceCard(current, vm)
                 PrivacyCard()
-                TestCard(current)
+                TestCard()
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
 }
 
+// ---------- Загальні елементи ----------
+
 @Composable
-private fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+private fun HeroCard(settings: AppSettings) {
+    val cs = MaterialTheme.colorScheme
+    val next = AlarmScheduler.nextTriggerMillis(settings)
+    val nextText = if (next == null) {
+        stringResource(R.string.no_next_alarm)
+    } else {
+        stringResource(
+            R.string.next_alarm,
+            DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault())
+                .format(Date(next))
+        )
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = cs.primary, contentColor = cs.onPrimary)
+    ) {
+        Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                settings.label.ifBlank { stringResource(R.string.default_label) },
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(nextText, style = MaterialTheme.typography.titleMedium)
+        }
+    }
+}
+
+@Composable
+private fun SectionCard(
+    title: String,
+    icon: ImageVector,
+    container: Color,
+    badge: Color,
+    onBadge: Color,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = container)
+    ) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Surface(shape = CircleShape, color = badge, modifier = Modifier.size(44.dp)) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Icon(icon, contentDescription = null, tint = onBadge)
+                    }
+                }
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            }
             content()
         }
     }
@@ -128,6 +214,7 @@ private fun SectionCard(title: String, content: @Composable ColumnScope.() -> Un
 @Composable
 private fun PermissionsCard() {
     val context = LocalContext.current
+    val cs = MaterialTheme.colorScheme
     var notifOk by remember { mutableStateOf(notificationsEnabled(context)) }
     var exactOk by remember { mutableStateOf(AlarmScheduler.canScheduleExact(context)) }
 
@@ -145,7 +232,14 @@ private fun PermissionsCard() {
         }
     }
 
-    SectionCard(stringResource(R.string.section_permissions)) {
+    val allOk = notifOk && exactOk
+    SectionCard(
+        title = stringResource(R.string.section_permissions),
+        icon = if (allOk) Icons.Default.CheckCircle else Icons.Default.Warning,
+        container = if (allOk) cs.secondaryContainer else cs.errorContainer,
+        badge = if (allOk) cs.secondary else cs.error,
+        onBadge = if (allOk) cs.onSecondary else cs.onError
+    ) {
         PermissionRow(
             title = stringResource(R.string.perm_notifications),
             hint = null,
@@ -172,11 +266,39 @@ private fun PermissionsCard() {
                 }
             )
         }
+        if (Build.VERSION.SDK_INT >= 36) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.perm_live_updates), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.perm_live_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = cs.onSurfaceVariant
+                    )
+                }
+                FilledTonalButton(onClick = { openLiveUpdatesSettings(context) }) {
+                    Text(stringResource(R.string.open_settings))
+                }
+            }
+        }
     }
 }
 
 private fun notificationsEnabled(context: Context) =
     NotificationManagerCompat.from(context).areNotificationsEnabled()
+
+private fun openLiveUpdatesSettings(context: Context) {
+    val pkg = context.packageName
+    val promo = Intent("android.settings.APP_NOTIFICATION_PROMOTION_SETTINGS")
+        .putExtra(Settings.EXTRA_APP_PACKAGE, pkg)
+    val fallback = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+        .putExtra(Settings.EXTRA_APP_PACKAGE, pkg)
+    try {
+        context.startActivity(promo)
+    } catch (e: Exception) {
+        context.startActivity(fallback)
+    }
+}
 
 @Composable
 private fun PermissionRow(title: String, hint: String?, granted: Boolean, onGrant: () -> Unit) {
@@ -184,54 +306,114 @@ private fun PermissionRow(title: String, hint: String?, granted: Boolean, onGran
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
             if (!granted && hint != null) {
-                Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    hint,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
         if (granted) {
-            Text(stringResource(R.string.granted), color = MaterialTheme.colorScheme.primary)
+            Text(
+                stringResource(R.string.granted),
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary
+            )
         } else {
             FilledTonalButton(onClick = onGrant) { Text(stringResource(R.string.grant)) }
         }
     }
 }
 
-// ---------- Сповіщення ----------
+// ---------- Live-віджет ----------
 
 @Composable
 private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
     val context = LocalContext.current
-    // Локальний стан для полів вводу — щоб курсор не стрибав через асинхронний DataStore
+    val cs = MaterialTheme.colorScheme
+    // Локальний стан, щоб курсор у полі не стрибав через асинхронний DataStore
     var label by remember { mutableStateOf(settings.label) }
-    var pkg by remember { mutableStateOf(settings.targetPackage) }
     var minutes by remember { mutableFloatStateOf(settings.timerMinutes.toFloat()) }
-    val notFound = pkg.isNotBlank() && context.packageManager.getLaunchIntentForPackage(pkg.trim()) == null
+    var showPicker by remember { mutableStateOf(false) }
 
-    SectionCard(stringResource(R.string.section_notification)) {
+    val hasTarget = settings.targetPackage.isNotBlank()
+    val appName = remember(settings.targetPackage) { AppUtils.appLabel(context, settings.targetPackage) }
+    val notFound = hasTarget && appName == null
+
+    SectionCard(
+        title = stringResource(R.string.section_notification),
+        icon = Icons.Default.Notifications,
+        container = cs.primaryContainer,
+        badge = cs.primary,
+        onBadge = cs.onPrimary
+    ) {
         OutlinedTextField(
             value = label,
             onValueChange = { label = it; vm.setLabel(it) },
             label = { Text(stringResource(R.string.label_text)) },
             singleLine = true,
+            shape = MaterialTheme.shapes.large,
             modifier = Modifier.fillMaxWidth()
         )
-        OutlinedTextField(
-            value = pkg,
-            onValueChange = { pkg = it; vm.setTargetPackage(it.trim()) },
-            label = { Text(stringResource(R.string.target_package)) },
-            placeholder = { Text(stringResource(R.string.target_package_hint)) },
-            singleLine = true,
-            isError = notFound,
-            supportingText = { if (notFound) Text(stringResource(R.string.target_not_found)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Text(stringResource(R.string.timer_duration, minutes.roundToInt()))
+
+        // Вибір застосунку, який відкриває кнопка «Відкрити»
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.large)
+                .background(cs.surface)
+                .clickable { showPicker = true }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            if (appName != null) {
+                AppIcon(settings.targetPackage, 44.dp)
+            }
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.target_app),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = cs.onSurfaceVariant
+                )
+                Text(
+                    text = when {
+                        appName != null -> appName
+                        notFound -> stringResource(R.string.target_not_found)
+                        else -> stringResource(R.string.target_app_none)
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (notFound) cs.error else cs.onSurface
+                )
+            }
+            if (hasTarget) {
+                IconButton(onClick = { vm.setTargetPackage("") }) {
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_app))
+                }
+            }
+            FilledTonalButton(onClick = { showPicker = true }) {
+                Text(stringResource(if (hasTarget) R.string.change_app else R.string.choose_app))
+            }
+        }
+
+        Text(stringResource(R.string.timer_duration, minutes.roundToInt()), style = MaterialTheme.typography.titleMedium)
         Slider(
             value = minutes,
             onValueChange = { minutes = it },
             onValueChangeFinished = { vm.setTimerMinutes(minutes.roundToInt()) },
             valueRange = 1f..15f,
             steps = 13
+        )
+    }
+
+    if (showPicker) {
+        AppPickerDialog(
+            currentPackage = settings.targetPackage,
+            onDismiss = { showPicker = false },
+            onSelect = { pkg ->
+                vm.setTargetPackage(pkg)
+                showPicker = false
+            }
         )
     }
 }
@@ -241,6 +423,7 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
+    val cs = MaterialTheme.colorScheme
     var showPicker by remember { mutableStateOf(false) }
     val dayNames = listOf(
         stringResource(R.string.day_mon), stringResource(R.string.day_tue),
@@ -249,9 +432,19 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
         stringResource(R.string.day_sun)
     )
 
-    SectionCard(stringResource(R.string.section_schedule)) {
+    SectionCard(
+        title = stringResource(R.string.section_schedule),
+        icon = Icons.Default.DateRange,
+        container = cs.tertiaryContainer,
+        badge = cs.tertiary,
+        onBadge = cs.onTertiary
+    ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.schedule_enabled), Modifier.weight(1f))
+            Text(
+                stringResource(R.string.schedule_enabled),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
             Switch(checked = settings.enabled, onCheckedChange = vm::setEnabled)
         }
 
@@ -261,15 +454,31 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
                 FilterChip(
                     selected = settings.hasDay(index),
                     onClick = { vm.toggleDay(index) },
-                    label = { Text(name) }
+                    label = { Text(name) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = cs.tertiary,
+                        selectedLabelColor = cs.onTertiary
+                    )
                 )
             }
         }
 
         Text(stringResource(R.string.times_title), style = MaterialTheme.typography.labelLarge)
         settings.times.sorted().forEach { minute ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(formatTime(minute), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(MaterialTheme.shapes.large)
+                    .background(cs.surface)
+                    .padding(start = 20.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    formatTime(minute),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
                 IconButton(onClick = { vm.removeTime(minute) }) {
                     Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_time))
                 }
@@ -277,21 +486,9 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
         }
         OutlinedButton(onClick = { showPicker = true }) {
             Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(Modifier.padding(4.dp))
+            Spacer(Modifier.size(8.dp))
             Text(stringResource(R.string.add_time))
         }
-
-        val next = AlarmScheduler.nextTriggerMillis(settings)
-        Text(
-            text = if (next == null) stringResource(R.string.no_next_alarm)
-            else stringResource(
-                R.string.next_alarm,
-                DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault())
-                    .format(Date(next))
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 
     if (showPicker) {
@@ -312,11 +509,14 @@ private fun formatTime(minuteOfDay: Int) = "%02d:%02d".format(minuteOfDay / 60, 
 private fun TimePickerDialog(onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
     val state = rememberTimePickerState(initialHour = 9, initialMinute = 0, is24Hour = true)
     Dialog(onDismissRequest = onDismiss) {
-        Surface(shape = MaterialTheme.shapes.extraLarge, tonalElevation = 6.dp) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
+        ) {
             Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     stringResource(R.string.add_time),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 TimePicker(state = state)
@@ -331,17 +531,25 @@ private fun TimePickerDialog(onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
     }
 }
 
-// ---------- Мова ----------
+// ---------- Вигляд: мова та кольори ----------
 
 @Composable
-private fun LanguageCard(settings: AppSettings, vm: SettingsViewModel) {
+private fun AppearanceCard(settings: AppSettings, vm: SettingsViewModel) {
+    val cs = MaterialTheme.colorScheme
     val options = listOf(
         LANG_AUTO to stringResource(R.string.lang_auto),
         "uk" to stringResource(R.string.lang_uk),
         "en" to stringResource(R.string.lang_en),
         "de" to stringResource(R.string.lang_de)
     )
-    SectionCard(stringResource(R.string.section_language)) {
+    SectionCard(
+        title = stringResource(R.string.section_appearance),
+        icon = Icons.Default.Settings,
+        container = cs.secondaryContainer,
+        badge = cs.secondary,
+        onBadge = cs.onSecondary
+    ) {
+        Text(stringResource(R.string.language_title), style = MaterialTheme.typography.labelLarge)
         options.forEach { (code, name) ->
             Row(
                 Modifier
@@ -357,6 +565,19 @@ private fun LanguageCard(settings: AppSettings, vm: SettingsViewModel) {
                 Text(name, Modifier.padding(start = 12.dp, top = 8.dp, bottom = 8.dp))
             }
         }
+        if (Build.VERSION.SDK_INT >= 31) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.dynamic_colors), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        stringResource(R.string.dynamic_colors_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = cs.onSurfaceVariant
+                    )
+                }
+                Switch(checked = settings.dynamicColor, onCheckedChange = vm::setDynamicColor)
+            }
+        }
     }
 }
 
@@ -365,6 +586,7 @@ private fun LanguageCard(settings: AppSettings, vm: SettingsViewModel) {
 @Composable
 private fun PrivacyCard() {
     val context = LocalContext.current
+    val cs = MaterialTheme.colorScheme
     var hidden by remember { mutableStateOf(StealthManager.isIconHidden(context)) }
     var confirm by remember { mutableStateOf(false) }
 
@@ -372,9 +594,19 @@ private fun PrivacyCard() {
         hidden = StealthManager.isIconHidden(context)
     }
 
-    SectionCard(stringResource(R.string.section_privacy)) {
+    SectionCard(
+        title = stringResource(R.string.section_privacy),
+        icon = Icons.Default.Lock,
+        container = cs.surfaceContainerHigh,
+        badge = cs.inverseSurface,
+        onBadge = cs.inverseOnSurface
+    ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.hide_icon), Modifier.weight(1f))
+            Text(
+                stringResource(R.string.hide_icon),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
             Switch(
                 checked = hidden,
                 onCheckedChange = { wantHidden ->
@@ -390,7 +622,7 @@ private fun PrivacyCard() {
         Text(
             stringResource(R.string.hide_icon_hint),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = cs.onSurfaceVariant
         )
     }
 
@@ -416,11 +648,18 @@ private fun PrivacyCard() {
 // ---------- Тестування ----------
 
 @Composable
-private fun TestCard(settings: AppSettings) {
+private fun TestCard() {
     val context = LocalContext.current
-    SectionCard(stringResource(R.string.section_test)) {
+    val cs = MaterialTheme.colorScheme
+    SectionCard(
+        title = stringResource(R.string.section_test),
+        icon = Icons.Default.PlayArrow,
+        container = cs.surfaceContainerHigh,
+        badge = cs.primary,
+        onBadge = cs.onPrimary
+    ) {
         Button(
-            onClick = { NotificationHelper.show(context, settings) },
+            onClick = { CountdownService.start(context) },
             modifier = Modifier.fillMaxWidth()
         ) { Text(stringResource(R.string.test_now)) }
         OutlinedButton(

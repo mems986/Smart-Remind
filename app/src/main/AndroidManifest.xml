@@ -2,10 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Android 16+: Live Updates (віджет у статус-барі поруч з годинником) -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
-    <!-- Дозволяє бачити застосунки з лаунчер-іконкою (для getLaunchIntentForPackage, Android 11+) -->
+    <!-- Дозволяє бачити застосунки з лаунчер-іконкою (вибір застосунку, Android 11+) -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -22,7 +26,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartRemind">
 
-        <!-- Основна activity БЕЗ launcher-фільтра: іконку дає alias нижче -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -41,6 +44,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Тримає Live-сповіщення та оновлює шкалу таймера щосекунди -->
+        <service
+            android:name=".service.CountdownService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-configured reminder countdown shown as a live notification" />
+        </service>
 
         <receiver
             android:name=".receiver.AlarmReceiver"
@@ -74,7 +87,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Зберігання мови для Android < 13 (AppCompat per-app locales) -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"
