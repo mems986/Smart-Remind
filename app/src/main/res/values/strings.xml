@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Remind</string>
+    <string name="channel_name">Reminders</string>
+    <string name="channel_description">Live reminder notifications</string>
+    <string name="default_label">pep</string>
+    <string name="action_open">Open</string>
+    <string name="action_close">Close</string>
+
+    <string name="title_settings">Settings</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="granted">Granted</string>
+    <string name="grant">Grant</string>
+
+    <string name="section_permissions">Permissions</string>
+    <string name="perm_notifications">Notifications</string>
+    <string name="perm_exact_alarms">Exact alarms</string>
+    <string name="perm_exact_hint">Without this permission reminders may be delayed.</string>
+
+    <string name="section_notification">Notification</string>
+    <string name="label_text">Label</string>
+    <string name="target_package">Target package name</string>
+    <string name="target_package_hint">e.g. com.instagram.android</string>
+    <string name="target_not_found">App not found on this device</string>
+    <string name="timer_duration">Countdown duration: %1$d min</string>
+
+    <string name="section_schedule">Schedule</string>
+    <string name="schedule_enabled">Schedule enabled</string>
+    <string name="days_title">Days of the week</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
+    <string name="times_title">Times</string>
+    <string name="add_time">Add time</string>
+    <string name="delete_time">Delete time</string>
+    <string name="next_alarm">Next reminder: %1$s</string>
+    <string name="no_next_alarm">No reminders scheduled</string>
+
+    <string name="section_language">Language</string>
+    <string name="lang_auto">Auto (system)</string>
+
+    <string name="section_privacy">Privacy</string>
+    <string name="hide_icon">Hide launcher icon</string>
+    <string name="hide_icon_hint">To restore the icon, dial *#*#7373#*#* in the Phone app.</string>
+    <string name="hide_dialog_title">Hide the icon?</string>
+    <string name="hide_dialog_text">The app will disappear from the launcher. To bring it back, dial *#*#7373#*#* in the Phone app (may not work on every device).</string>
+    <string name="icon_restored">Icon restored</string>
+
+    <string name="section_test">Testing</string>
+    <string name="test_now">Send test notification</string>
+    <string name="test_in_10s">Test alarm in 10 seconds</string>
+    <string name="test_scheduled">Test alarm set for 10 seconds from now</string>
+
+    <string name="lang_uk" translatable="false">Українська</string>
+    <string name="lang_en" translatable="false">English</string>
+    <string name="lang_de" translatable="false">Deutsch</string>
+</resources>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Remind</string>
+    <string name="channel_name">Нагадування</string>
+    <string name="channel_description">Живі сповіщення-нагадування</string>
+    <string name="default_label">pep</string>
+    <string name="action_open">Відкрити</string>
+    <string name="action_close">Закрити</string>
+
+    <string name="title_settings">Налаштування</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Скасувати</string>
+    <string name="granted">Надано</string>
+    <string name="grant">Надати</string>
+
+    <string name="section_permissions">Дозволи</string>
+    <string name="perm_notifications">Сповіщення</string>
+    <string name="perm_exact_alarms">Точні будильники</string>
+    <string name="perm_exact_hint">Без цього дозволу нагадування можуть спрацьовувати із затримкою.</string>
+
+    <string name="section_notification">Сповіщення</string>
+    <string name="label_text">Напис</string>
+    <string name="target_package">Пакетне ім\'я цільового застосунку</string>
+    <string name="target_package_hint">напр. com.instagram.android</string>
+    <string name="target_not_found">Застосунок не знайдено на цьому пристрої</string>
+    <string name="timer_duration">Тривалість таймера: %1$d хв</string>
+
+    <string name="section_schedule">Розклад</string>
+    <string name="schedule_enabled">Розклад увімкнено</string>
+    <string name="days_title">Дні тижня</string>
+    <string name="day_mon">Пн</string>
+    <string name="day_tue">Вт</string>
+    <string name="day_wed">Ср</string>
+    <string name="day_thu">Чт</string>
+    <string name="day_fri">Пт</string>
+    <string name="day_sat">Сб</string>
+    <string name="day_sun">Нд</string>
+    <string name="times_title">Час спрацювання</string>
+    <string name="add_time">Додати час</string>
+    <string name="delete_time">Видалити час</string>
+    <string name="next_alarm">Наступне нагадування: %1$s</string>
+    <string name="no_next_alarm">Нагадувань не заплановано</string>
+
+    <string name="section_language">Мова</string>
+    <string name="lang_auto">Авто (системна)</string>
+
+    <string name="section_privacy">Приватність</string>
+    <string name="hide_icon">Приховати іконку з лаунчера</string>
+    <string name="hide_icon_hint">Щоб повернути іконку, наберіть *#*#7373#*#* у застосунку «Телефон».</string>
+    <string name="hide_dialog_title">Приховати іконку?</string>
+    <string name="hide_dialog_text">Застосунок зникне з лаунчера. Щоб повернути його, наберіть *#*#7373#*#* у застосунку «Телефон» (може не працювати на деяких пристроях).</string>
+    <string name="icon_restored">Іконку відновлено</string>
+
+    <string name="section_test">Тестування</string>
+    <string name="test_now">Надіслати тестове сповіщення</string>
+    <string name="test_in_10s">Тестовий будильник через 10 секунд</string>
+    <string name="test_scheduled">Тестовий будильник спрацює через 10 секунд</string>
+</resources>
