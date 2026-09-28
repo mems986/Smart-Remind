@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.smartremind.app.ui
 
@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -45,16 +46,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -68,7 +67,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -80,7 +78,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -131,7 +128,7 @@ fun SettingsScreen(vm: SettingsViewModel) {
         val current = settings
         if (current == null) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                LoadingIndicator()
+                CircularProgressIndicator()
             }
         } else {
             Column(
@@ -206,7 +203,7 @@ private fun HeroCard(settings: AppSettings) {
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.ExtraBold
             )
-            LinearWavyProgressIndicator(
+            LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
                 color = cs.onPrimary,
                 trackColor = cs.onPrimary.copy(alpha = 0.25f)
@@ -223,7 +220,6 @@ private fun SectionCard(
     container: Color,
     badge: Color,
     onBadge: Color,
-    badgeShape: Shape,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -236,7 +232,7 @@ private fun SectionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Surface(shape = badgeShape, color = badge, modifier = Modifier.size(54.dp)) {
+                Surface(shape = CircleShape, color = badge, modifier = Modifier.size(54.dp)) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Icon(icon, contentDescription = null, tint = onBadge)
                     }
@@ -277,8 +273,7 @@ private fun PermissionsCard() {
         icon = if (allOk) Icons.Default.CheckCircle else Icons.Default.Warning,
         container = if (allOk) cs.secondaryContainer else cs.errorContainer,
         badge = if (allOk) cs.secondary else cs.error,
-        onBadge = if (allOk) cs.onSecondary else cs.onError,
-        badgeShape = MaterialShapes.Cookie12Sided.toShape()
+        onBadge = if (allOk) cs.onSecondary else cs.onError
     ) {
         PermissionRow(
             title = stringResource(R.string.perm_notifications),
@@ -385,8 +380,7 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
         icon = Icons.Default.Notifications,
         container = cs.primaryContainer,
         badge = cs.primary,
-        onBadge = cs.onPrimary,
-        badgeShape = MaterialShapes.Cookie9Sided.toShape()
+        onBadge = cs.onPrimary
     ) {
         OutlinedTextField(
             value = label,
@@ -503,7 +497,6 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
 private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
     val cs = MaterialTheme.colorScheme
     var showPicker by remember { mutableStateOf(false) }
-    val cookie = MaterialShapes.Cookie9Sided.toShape()
     val dayNames = listOf(
         stringResource(R.string.day_mon), stringResource(R.string.day_tue),
         stringResource(R.string.day_wed), stringResource(R.string.day_thu),
@@ -516,8 +509,7 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
         icon = Icons.Default.DateRange,
         container = cs.tertiaryContainer,
         badge = cs.tertiary,
-        onBadge = cs.onTertiary,
-        badgeShape = MaterialShapes.Clover4Leaf.toShape()
+        onBadge = cs.onTertiary
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -529,7 +521,7 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
         }
 
         Text(stringResource(R.string.days_title), style = MaterialTheme.typography.labelLarge)
-        // Дні тижня: вибраний день перетворюється на «печиво» (cookie), як у Material 3 Expressive
+        // Дні тижня: вибраний день стає заокругленим квадратом, невибраний лишається колом
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             dayNames.forEachIndexed { index, name ->
                 val selected = settings.hasDay(index)
@@ -537,7 +529,7 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
                     Modifier
                         .weight(1f)
                         .aspectRatio(1f)
-                        .clip(if (selected) cookie else CircleShape)
+                        .clip(if (selected) RoundedCornerShape(16.dp) else CircleShape)
                         .background(if (selected) cs.tertiary else cs.surface)
                         .clickable(role = Role.Checkbox) { vm.toggleDay(index) },
                     contentAlignment = Alignment.Center
@@ -640,8 +632,7 @@ private fun AppearanceCard(settings: AppSettings, vm: SettingsViewModel) {
         icon = Icons.Default.Settings,
         container = cs.secondaryContainer,
         badge = cs.secondary,
-        onBadge = cs.onSecondary,
-        badgeShape = MaterialShapes.SoftBurst.toShape()
+        onBadge = cs.onSecondary
     ) {
         Text(stringResource(R.string.language_title), style = MaterialTheme.typography.labelLarge)
         options.forEach { (code, name) ->
@@ -693,8 +684,7 @@ private fun PrivacyCard() {
         icon = Icons.Default.Lock,
         container = cs.surfaceContainerHigh,
         badge = cs.inverseSurface,
-        onBadge = cs.inverseOnSurface,
-        badgeShape = MaterialShapes.Cookie6Sided.toShape()
+        onBadge = cs.inverseOnSurface
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -751,8 +741,7 @@ private fun TestCard() {
         icon = Icons.Default.PlayArrow,
         container = cs.surfaceContainerHigh,
         badge = cs.primary,
-        onBadge = cs.onPrimary,
-        badgeShape = MaterialShapes.Cookie12Sided.toShape()
+        onBadge = cs.onPrimary
     ) {
         Button(
             onClick = { CountdownService.start(context) },
