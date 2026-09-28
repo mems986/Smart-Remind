@@ -72,4 +72,24 @@
     <string name="lang_uk" translatable="false">Українська</string>
     <string name="lang_en" translatable="false">English</string>
     <string name="lang_de" translatable="false">Deutsch</string>
+
+    <string name="channel_alert_name">Reminders (with alert)</string>
+    <string name="channel_alert_desc">Live reminder with a heads-up alert at start</string>
+    <string name="channel_silent_name">Reminders (silent)</string>
+    <string name="channel_silent_desc">Silent live reminder, status bar chip only</string>
+    <string name="notif_remaining">%1$s left</string>
+
+    <string name="pill_title">Status bar chip shows</string>
+    <string name="pill_timer">Countdown</string>
+    <string name="pill_label">Label</string>
+    <string name="alert_on_start">Heads-up alert at start</string>
+    <string name="alert_on_start_hint">Off: only the silent chip next to the clock</string>
+
+    <string name="pick_manual">Enter manually</string>
+    <string name="pick_back">Back</string>
+    <string name="package_name">Package name</string>
+    <string name="package_hint">e.g. com.instagram.android</string>
+    <string name="package_found">Found: %1$s</string>
+    <string name="package_not_found_saveable">Not found on this device, you can still save it</string>
+    <string name="save">Save</string>
 </resources>

@@ -21,6 +21,8 @@ private val K_DAYS = intPreferencesKey("days_mask")
 private val K_TIMES = stringPreferencesKey("times")
 private val K_ENABLED = booleanPreferencesKey("enabled")
 private val K_DYNAMIC = booleanPreferencesKey("dynamic_color")
+private val K_PILL = stringPreferencesKey("pill_content")
+private val K_ALERT = booleanPreferencesKey("alert_on_start")
 
 class SettingsRepository(context: Context) {
     private val store = context.applicationContext.settingsStore
@@ -40,6 +42,8 @@ class SettingsRepository(context: Context) {
             prefs[K_TIMES] = s.times.distinct().sorted().joinToString(",")
             prefs[K_ENABLED] = s.enabled
             prefs[K_DYNAMIC] = s.dynamicColor
+            prefs[K_PILL] = s.pillContent
+            prefs[K_ALERT] = s.alertOnStart
         }
     }
 
@@ -57,7 +61,9 @@ class SettingsRepository(context: Context) {
                 ?.sorted()
                 ?: d.times,
             enabled = this[K_ENABLED] ?: d.enabled,
-            dynamicColor = this[K_DYNAMIC] ?: d.dynamicColor
+            dynamicColor = this[K_DYNAMIC] ?: d.dynamicColor,
+            pillContent = this[K_PILL] ?: d.pillContent,
+            alertOnStart = this[K_ALERT] ?: d.alertOnStart
         )
     }
 }

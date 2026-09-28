@@ -35,14 +35,13 @@ class CountdownService : Service() {
             val settings = SettingsRepository(app).get()
             val totalSec = settings.timerMinutes.coerceAtLeast(1) * 60
             val startElapsed = SystemClock.elapsedRealtime()
-            val endWall = System.currentTimeMillis() + totalSec * 1000L
             var inForeground = false
 
             while (true) {
                 val elapsed = ((SystemClock.elapsedRealtime() - startElapsed) / 1000)
                     .toInt()
                     .coerceAtMost(totalSec)
-                val notification = NotificationHelper.build(app, settings, elapsed, totalSec, endWall)
+                val notification = NotificationHelper.build(app, settings, elapsed, totalSec)
 
                 if (!inForeground) {
                     try {

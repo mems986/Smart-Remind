@@ -68,4 +68,24 @@
     <string name="test_now">Показати віджет зараз</string>
     <string name="test_in_10s">Тестовий будильник через 10 секунд</string>
     <string name="test_scheduled">Тестовий будильник спрацює через 10 секунд</string>
+
+    <string name="channel_alert_name">Нагадування (зі сповіщенням)</string>
+    <string name="channel_alert_desc">Live-нагадування зі спливаючим сповіщенням на старті</string>
+    <string name="channel_silent_name">Нагадування (тихі)</string>
+    <string name="channel_silent_desc">Тихе live-нагадування, лише чіп у статус-барі</string>
+    <string name="notif_remaining">Залишилось %1$s</string>
+
+    <string name="pill_title">Чіп у статус-барі показує</string>
+    <string name="pill_timer">Зворотний відлік</string>
+    <string name="pill_label">Напис</string>
+    <string name="alert_on_start">Спливаюче сповіщення на старті</string>
+    <string name="alert_on_start_hint">Вимкнено: лише тихий чіп поруч із годинником</string>
+
+    <string name="pick_manual">Ввести вручну</string>
+    <string name="pick_back">Назад</string>
+    <string name="package_name">Пакетне ім\'я</string>
+    <string name="package_hint">напр. com.instagram.android</string>
+    <string name="package_found">Знайдено: %1$s</string>
+    <string name="package_not_found_saveable">Не знайдено на цьому пристрої, але можна зберегти</string>
+    <string name="save">Зберегти</string>
 </resources>

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+
 package com.smartremind.app.ui
 
 import android.Manifest
@@ -15,10 +17,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,14 +44,17 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -64,6 +68,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,9 +80,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -90,6 +97,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smartremind.app.R
 import com.smartremind.app.data.AppSettings
 import com.smartremind.app.data.LANG_AUTO
+import com.smartremind.app.data.PILL_LABEL
+import com.smartremind.app.data.PILL_TIMER
 import com.smartremind.app.scheduler.AlarmScheduler
 import com.smartremind.app.service.CountdownService
 import com.smartremind.app.util.AppUtils
@@ -99,7 +108,6 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(vm: SettingsViewModel) {
     val settings by vm.settings.collectAsStateWithLifecycle()
@@ -111,7 +119,7 @@ fun SettingsScreen(vm: SettingsViewModel) {
         containerColor = cs.background,
         topBar = {
             LargeTopAppBar(
-                title = { Text(stringResource(R.string.title_settings), fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.title_settings), fontWeight = FontWeight.ExtraBold) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = cs.background,
                     scrolledContainerColor = cs.surfaceContainer
@@ -123,7 +131,7 @@ fun SettingsScreen(vm: SettingsViewModel) {
         val current = settings
         if (current == null) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
         } else {
             Column(
@@ -149,6 +157,27 @@ fun SettingsScreen(vm: SettingsViewModel) {
 
 // ---------- Загальні елементи ----------
 
+/** Макет «піли» у статус-барі: іконка + текст, як чіп Live Update поруч із годинником. */
+@Composable
+private fun StatusPill(text: String) {
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .background(Color.Black)
+            .padding(horizontal = 16.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_notification),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(18.dp)
+        )
+        Text(text, color = Color.White, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
 @Composable
 private fun HeroCard(settings: AppSettings) {
     val cs = MaterialTheme.colorScheme
@@ -162,16 +191,25 @@ private fun HeroCard(settings: AppSettings) {
                 .format(Date(next))
         )
     }
+    val title = settings.label.ifBlank { stringResource(R.string.default_label) }
+    val pillText = if (settings.pillContent == PILL_LABEL) title.take(7) else "%d:00".format(settings.timerMinutes)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = cs.primary, contentColor = cs.onPrimary)
     ) {
-        Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            StatusPill(pillText)
             Text(
-                settings.label.ifBlank { stringResource(R.string.default_label) },
+                title,
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.ExtraBold
+            )
+            LinearWavyProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                color = cs.onPrimary,
+                trackColor = cs.onPrimary.copy(alpha = 0.25f)
             )
             Text(nextText, style = MaterialTheme.typography.titleMedium)
         }
@@ -185,6 +223,7 @@ private fun SectionCard(
     container: Color,
     badge: Color,
     onBadge: Color,
+    badgeShape: Shape,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -192,17 +231,17 @@ private fun SectionCard(
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = container)
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Surface(shape = CircleShape, color = badge, modifier = Modifier.size(44.dp)) {
+                Surface(shape = badgeShape, color = badge, modifier = Modifier.size(54.dp)) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Icon(icon, contentDescription = null, tint = onBadge)
                     }
                 }
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
             }
             content()
         }
@@ -238,7 +277,8 @@ private fun PermissionsCard() {
         icon = if (allOk) Icons.Default.CheckCircle else Icons.Default.Warning,
         container = if (allOk) cs.secondaryContainer else cs.errorContainer,
         badge = if (allOk) cs.secondary else cs.error,
-        onBadge = if (allOk) cs.onSecondary else cs.onError
+        onBadge = if (allOk) cs.onSecondary else cs.onError,
+        badgeShape = MaterialShapes.Cookie12Sided.toShape()
     ) {
         PermissionRow(
             title = stringResource(R.string.perm_notifications),
@@ -345,7 +385,8 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
         icon = Icons.Default.Notifications,
         container = cs.primaryContainer,
         badge = cs.primary,
-        onBadge = cs.onPrimary
+        onBadge = cs.onPrimary,
+        badgeShape = MaterialShapes.Cookie9Sided.toShape()
     ) {
         OutlinedTextField(
             value = label,
@@ -356,7 +397,7 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Вибір застосунку, який відкриває кнопка «Відкрити»
+        // Вибір застосунку для кнопки «Відкрити»: зі списку або вручну
         Row(
             Modifier
                 .fillMaxWidth()
@@ -377,14 +418,18 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
                     color = cs.onSurfaceVariant
                 )
                 Text(
-                    text = when {
-                        appName != null -> appName
-                        notFound -> stringResource(R.string.target_not_found)
-                        else -> stringResource(R.string.target_app_none)
-                    },
+                    text = appName
+                        ?: if (hasTarget) settings.targetPackage else stringResource(R.string.target_app_none),
                     style = MaterialTheme.typography.titleMedium,
                     color = if (notFound) cs.error else cs.onSurface
                 )
+                if (notFound) {
+                    Text(
+                        stringResource(R.string.target_not_found),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = cs.error
+                    )
+                }
             }
             if (hasTarget) {
                 IconButton(onClick = { vm.setTargetPackage("") }) {
@@ -394,6 +439,40 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
             FilledTonalButton(onClick = { showPicker = true }) {
                 Text(stringResource(if (hasTarget) R.string.change_app else R.string.choose_app))
             }
+        }
+
+        Text(stringResource(R.string.pill_title), style = MaterialTheme.typography.labelLarge)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = settings.pillContent == PILL_TIMER,
+                onClick = { vm.setPillContent(PILL_TIMER) },
+                label = { Text(stringResource(R.string.pill_timer)) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = cs.primary,
+                    selectedLabelColor = cs.onPrimary
+                )
+            )
+            FilterChip(
+                selected = settings.pillContent == PILL_LABEL,
+                onClick = { vm.setPillContent(PILL_LABEL) },
+                label = { Text(stringResource(R.string.pill_label)) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = cs.primary,
+                    selectedLabelColor = cs.onPrimary
+                )
+            )
+        }
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.alert_on_start), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.alert_on_start_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = cs.onSurfaceVariant
+                )
+            }
+            Switch(checked = settings.alertOnStart, onCheckedChange = vm::setAlertOnStart)
         }
 
         Text(stringResource(R.string.timer_duration, minutes.roundToInt()), style = MaterialTheme.typography.titleMedium)
@@ -420,11 +499,11 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
 
 // ---------- Розклад ----------
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
     val cs = MaterialTheme.colorScheme
     var showPicker by remember { mutableStateOf(false) }
+    val cookie = MaterialShapes.Cookie9Sided.toShape()
     val dayNames = listOf(
         stringResource(R.string.day_mon), stringResource(R.string.day_tue),
         stringResource(R.string.day_wed), stringResource(R.string.day_thu),
@@ -437,7 +516,8 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
         icon = Icons.Default.DateRange,
         container = cs.tertiaryContainer,
         badge = cs.tertiary,
-        onBadge = cs.onTertiary
+        onBadge = cs.onTertiary,
+        badgeShape = MaterialShapes.Clover4Leaf.toShape()
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -449,17 +529,27 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
         }
 
         Text(stringResource(R.string.days_title), style = MaterialTheme.typography.labelLarge)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Дні тижня: вибраний день перетворюється на «печиво» (cookie), як у Material 3 Expressive
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             dayNames.forEachIndexed { index, name ->
-                FilterChip(
-                    selected = settings.hasDay(index),
-                    onClick = { vm.toggleDay(index) },
-                    label = { Text(name) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = cs.tertiary,
-                        selectedLabelColor = cs.onTertiary
+                val selected = settings.hasDay(index)
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .aspectRatio(1f)
+                        .clip(if (selected) cookie else CircleShape)
+                        .background(if (selected) cs.tertiary else cs.surface)
+                        .clickable(role = Role.Checkbox) { vm.toggleDay(index) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        softWrap = false,
+                        color = if (selected) cs.onTertiary else cs.onSurface
                     )
-                )
+                }
             }
         }
 
@@ -468,15 +558,15 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.large)
+                    .clip(CircleShape)
                     .background(cs.surface)
-                    .padding(start = 20.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                    .padding(start = 24.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     formatTime(minute),
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = { vm.removeTime(minute) }) {
@@ -484,7 +574,11 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
                 }
             }
         }
-        OutlinedButton(onClick = { showPicker = true }) {
+        OutlinedButton(
+            onClick = { showPicker = true },
+            shape = CircleShape,
+            modifier = Modifier.height(52.dp)
+        ) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(Modifier.size(8.dp))
             Text(stringResource(R.string.add_time))
@@ -504,7 +598,6 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
 
 private fun formatTime(minuteOfDay: Int) = "%02d:%02d".format(minuteOfDay / 60, minuteOfDay % 60)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimePickerDialog(onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
     val state = rememberTimePickerState(initialHour = 9, initialMinute = 0, is24Hour = true)
@@ -547,7 +640,8 @@ private fun AppearanceCard(settings: AppSettings, vm: SettingsViewModel) {
         icon = Icons.Default.Settings,
         container = cs.secondaryContainer,
         badge = cs.secondary,
-        onBadge = cs.onSecondary
+        onBadge = cs.onSecondary,
+        badgeShape = MaterialShapes.SoftBurst.toShape()
     ) {
         Text(stringResource(R.string.language_title), style = MaterialTheme.typography.labelLarge)
         options.forEach { (code, name) ->
@@ -599,7 +693,8 @@ private fun PrivacyCard() {
         icon = Icons.Default.Lock,
         container = cs.surfaceContainerHigh,
         badge = cs.inverseSurface,
-        onBadge = cs.inverseOnSurface
+        onBadge = cs.inverseOnSurface,
+        badgeShape = MaterialShapes.Cookie6Sided.toShape()
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -656,18 +751,21 @@ private fun TestCard() {
         icon = Icons.Default.PlayArrow,
         container = cs.surfaceContainerHigh,
         badge = cs.primary,
-        onBadge = cs.onPrimary
+        onBadge = cs.onPrimary,
+        badgeShape = MaterialShapes.Cookie12Sided.toShape()
     ) {
         Button(
             onClick = { CountdownService.start(context) },
-            modifier = Modifier.fillMaxWidth()
+            shape = CircleShape,
+            modifier = Modifier.fillMaxWidth().height(56.dp)
         ) { Text(stringResource(R.string.test_now)) }
         OutlinedButton(
             onClick = {
                 AlarmScheduler.scheduleTest(context, 10)
                 Toast.makeText(context, R.string.test_scheduled, Toast.LENGTH_SHORT).show()
             },
-            modifier = Modifier.fillMaxWidth()
+            shape = CircleShape,
+            modifier = Modifier.fillMaxWidth().height(56.dp)
         ) { Text(stringResource(R.string.test_in_10s)) }
     }
 }

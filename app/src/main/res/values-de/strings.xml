@@ -68,4 +68,24 @@
     <string name="test_now">Live-Widget jetzt anzeigen</string>
     <string name="test_in_10s">Test-Alarm in 10 Sekunden</string>
     <string name="test_scheduled">Test-Alarm in 10 Sekunden gesetzt</string>
+
+    <string name="channel_alert_name">Erinnerungen (mit Hinweis)</string>
+    <string name="channel_alert_desc">Live-Erinnerung mit Heads-up-Hinweis zum Start</string>
+    <string name="channel_silent_name">Erinnerungen (lautlos)</string>
+    <string name="channel_silent_desc">Lautlose Live-Erinnerung, nur Chip in der Statusleiste</string>
+    <string name="notif_remaining">Noch %1$s</string>
+
+    <string name="pill_title">Chip in der Statusleiste zeigt</string>
+    <string name="pill_timer">Countdown</string>
+    <string name="pill_label">Beschriftung</string>
+    <string name="alert_on_start">Heads-up-Hinweis beim Start</string>
+    <string name="alert_on_start_hint">Aus: nur der lautlose Chip neben der Uhr</string>
+
+    <string name="pick_manual">Manuell eingeben</string>
+    <string name="pick_back">Zurück</string>
+    <string name="package_name">Paketname</string>
+    <string name="package_hint">z. B. com.instagram.android</string>
+    <string name="package_found">Gefunden: %1$s</string>
+    <string name="package_not_found_saveable">Auf diesem Gerät nicht gefunden, kann aber gespeichert werden</string>
+    <string name="save">Speichern</string>
 </resources>

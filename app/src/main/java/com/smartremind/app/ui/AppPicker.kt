@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+
 package com.smartremind.app.ui
 
 import androidx.compose.foundation.Image
@@ -14,7 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -66,7 +72,10 @@ fun AppIcon(packageName: String, size: Dp, modifier: Modifier = Modifier) {
     }
 }
 
-/** Діалог вибору застосунку зі списком усіх встановлених програм та пошуком. */
+/**
+ * Діалог вибору застосунку: список усіх встановлених програм із пошуком
+ * і режим ручного введення package name (якщо потрібного застосунку в списку немає).
+ */
 @Composable
 fun AppPickerDialog(
     currentPackage: String,
@@ -75,6 +84,8 @@ fun AppPickerDialog(
 ) {
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
+    var manual by remember { mutableStateOf(false) }
+    var manualText by remember { mutableStateOf(currentPackage) }
     val apps by produceState<List<AppInfo>?>(null) {
         value = withContext(Dispatchers.Default) { AppUtils.loadLaunchableApps(context) }
     }
@@ -88,69 +99,117 @@ fun AppPickerDialog(
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)
+                .fillMaxHeight(0.88f)
                 .padding(16.dp)
         ) {
             Column(Modifier.fillMaxSize()) {
                 Text(
-                    stringResource(R.string.pick_app_title),
+                    stringResource(if (manual) R.string.package_name else R.string.pick_app_title),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp)
                 )
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text(stringResource(R.string.search_apps)) },
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.large,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 12.dp)
-                )
 
-                val list = apps
-                if (list == null) {
-                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    val filtered = list.filter {
-                        query.isBlank() ||
-                            it.label.contains(query, ignoreCase = true) ||
-                            it.packageName.contains(query, ignoreCase = true)
-                    }
-                    LazyColumn(Modifier.weight(1f)) {
-                        items(filtered, key = { it.packageName }) { app ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onSelect(app.packageName) }
-                                    .padding(horizontal = 24.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                AppIcon(app.packageName, 40.dp)
-                                Column(Modifier.weight(1f)) {
-                                    Text(app.label, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (manual) {
+                    val label = AppUtils.appLabel(context, manualText.trim())
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = manualText,
+                            onValueChange = { manualText = it },
+                            label = { Text(stringResource(R.string.package_name)) },
+                            placeholder = { Text(stringResource(R.string.package_hint)) },
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.large,
+                            isError = manualText.isNotBlank() && label == null,
+                            supportingText = {
+                                if (manualText.isNotBlank()) {
                                     Text(
-                                        app.packageName,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                                        if (label != null) stringResource(R.string.package_found, label)
+                                        else stringResource(R.string.package_not_found_saveable)
                                     )
                                 }
-                                RadioButton(selected = app.packageName == currentPackage, onClick = null)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        label = { Text(stringResource(R.string.search_apps)) },
+                        singleLine = true,
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 12.dp)
+                    )
+
+                    val list = apps
+                    if (list == null) {
+                        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            LoadingIndicator()
+                        }
+                    } else {
+                        val filtered = list.filter {
+                            query.isBlank() ||
+                                it.label.contains(query, ignoreCase = true) ||
+                                it.packageName.contains(query, ignoreCase = true)
+                        }
+                        LazyColumn(Modifier.weight(1f)) {
+                            items(filtered, key = { it.packageName }) { app ->
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clickable { onSelect(app.packageName) }
+                                        .padding(horizontal = 24.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    AppIcon(app.packageName, 40.dp)
+                                    Column(Modifier.weight(1f)) {
+                                        Text(
+                                            app.label,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            app.packageName,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    RadioButton(selected = app.packageName == currentPackage, onClick = null)
+                                }
                             }
                         }
                     }
                 }
 
                 Row(
-                    Modifier.fillMaxWidth().padding(8.dp),
-                    horizontalArrangement = Arrangement.End
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    TextButton(onClick = { manual = !manual }) {
+                        Text(stringResource(if (manual) R.string.pick_back else R.string.pick_manual))
+                    }
+                    Spacer(Modifier.weight(1f))
                     TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    if (manual) {
+                        Button(
+                            onClick = { onSelect(manualText.trim()) },
+                            enabled = manualText.isNotBlank()
+                        ) { Text(stringResource(R.string.save)) }
+                    }
                 }
             }
         }
