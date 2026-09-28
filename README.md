@@ -1,4 +1,4 @@
-# Smart Remind & Stealth Notifier — v3.0
+# Smart Remind & Stealth Notifier — v3.2
 
 Kotlin + Jetpack Compose, Material 3 Expressive. minSdk 26, compileSdk/targetSdk 36.
 Toolchain (ті самі версії, що в LiveMedia): AGP 8.13.0, Gradle 8.13, Kotlin 2.2.21, JDK 17.

@@ -30,17 +30,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -78,7 +67,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -216,7 +204,7 @@ private fun HeroCard(settings: AppSettings) {
 @Composable
 private fun SectionCard(
     title: String,
-    icon: ImageVector,
+    iconRes: Int,
     container: Color,
     badge: Color,
     onBadge: Color,
@@ -234,7 +222,7 @@ private fun SectionCard(
             ) {
                 Surface(shape = CircleShape, color = badge, modifier = Modifier.size(54.dp)) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(icon, contentDescription = null, tint = onBadge)
+                        Icon(painterResource(iconRes), contentDescription = null, tint = onBadge)
                     }
                 }
                 Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
@@ -270,7 +258,7 @@ private fun PermissionsCard() {
     val allOk = notifOk && exactOk
     SectionCard(
         title = stringResource(R.string.section_permissions),
-        icon = if (allOk) Icons.Default.CheckCircle else Icons.Default.Warning,
+        iconRes = if (allOk) R.drawable.ic_check else R.drawable.ic_warning,
         container = if (allOk) cs.secondaryContainer else cs.errorContainer,
         badge = if (allOk) cs.secondary else cs.error,
         onBadge = if (allOk) cs.onSecondary else cs.onError
@@ -377,7 +365,7 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
 
     SectionCard(
         title = stringResource(R.string.section_notification),
-        icon = Icons.Default.Notifications,
+        iconRes = R.drawable.ic_bell,
         container = cs.primaryContainer,
         badge = cs.primary,
         onBadge = cs.onPrimary
@@ -427,7 +415,7 @@ private fun NotificationCard(settings: AppSettings, vm: SettingsViewModel) {
             }
             if (hasTarget) {
                 IconButton(onClick = { vm.setTargetPackage("") }) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_app))
+                    Icon(painterResource(R.drawable.ic_clear), contentDescription = stringResource(R.string.clear_app))
                 }
             }
             FilledTonalButton(onClick = { showPicker = true }) {
@@ -506,7 +494,7 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
 
     SectionCard(
         title = stringResource(R.string.section_schedule),
-        icon = Icons.Default.DateRange,
+        iconRes = R.drawable.ic_calendar,
         container = cs.tertiaryContainer,
         badge = cs.tertiary,
         onBadge = cs.onTertiary
@@ -562,7 +550,7 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = { vm.removeTime(minute) }) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_time))
+                    Icon(painterResource(R.drawable.ic_delete), contentDescription = stringResource(R.string.delete_time))
                 }
             }
         }
@@ -571,7 +559,7 @@ private fun ScheduleCard(settings: AppSettings, vm: SettingsViewModel) {
             shape = CircleShape,
             modifier = Modifier.height(52.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = null)
+            Icon(painterResource(R.drawable.ic_add), contentDescription = null)
             Spacer(Modifier.size(8.dp))
             Text(stringResource(R.string.add_time))
         }
@@ -629,7 +617,7 @@ private fun AppearanceCard(settings: AppSettings, vm: SettingsViewModel) {
     )
     SectionCard(
         title = stringResource(R.string.section_appearance),
-        icon = Icons.Default.Settings,
+        iconRes = R.drawable.ic_settings,
         container = cs.secondaryContainer,
         badge = cs.secondary,
         onBadge = cs.onSecondary
@@ -681,7 +669,7 @@ private fun PrivacyCard() {
 
     SectionCard(
         title = stringResource(R.string.section_privacy),
-        icon = Icons.Default.Lock,
+        iconRes = R.drawable.ic_lock,
         container = cs.surfaceContainerHigh,
         badge = cs.inverseSurface,
         onBadge = cs.inverseOnSurface
@@ -738,7 +726,7 @@ private fun TestCard() {
     val cs = MaterialTheme.colorScheme
     SectionCard(
         title = stringResource(R.string.section_test),
-        icon = Icons.Default.PlayArrow,
+        iconRes = R.drawable.ic_play,
         container = cs.surfaceContainerHigh,
         badge = cs.primary,
         onBadge = cs.onPrimary
